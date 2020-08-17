@@ -5,6 +5,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,21 +16,27 @@ public class Inventory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @NotNull(message = "{inventory.notNull}")
     @Column(nullable = false)
     private double weight;
 
+    @NotNull(message = "{inventory.notNull}")
     @Column(nullable = false)
-    private String weightUnite;
+    private WeightUnite weightUnite;
 
+    @NotNull(message = "{inventory.notNull}")
     @Column(nullable = false)
     private double karat;
 
+//    private int prob;
+
+    @NotNull(message = "{inventory.notNull}")
     @Column(nullable = false)
     private double cost;
 
     private double salePrice;
 
-    @Column(nullable = true)
+//    @Column(nullable = false)
     @ManyToOne
     private Product product;
 
@@ -40,5 +47,5 @@ public class Inventory {
     private LocalDateTime updatedAt;
 
     @Column(nullable = false)
-    private String status = "available";
+    private Status status;
 }

@@ -5,7 +5,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+
 @Entity(name = "products")
 @Data
 public class Product {
@@ -15,6 +17,7 @@ public class Product {
     private int id;
 
     @Column(nullable = false)
+    @Size(min = 2, message = "{product.name.length}")
     private String name;
 
     private String image;
