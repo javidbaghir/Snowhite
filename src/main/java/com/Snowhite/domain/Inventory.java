@@ -36,7 +36,6 @@ public class Inventory {
 
     private double salePrice;
 
-//    @Column(nullable = false)
     @ManyToOne
     private Product product;
 

@@ -21,6 +21,7 @@ public enum WeightUnite {
         if (value == 1) {
             weightUnite = GRAM;
         }
+
         throw new RuntimeException("Invalid weight unite value = " + value);
     }
 }
