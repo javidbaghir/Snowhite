@@ -24,7 +24,7 @@ public class ProductController {
 //    private SnowhiteConfigration snowhiteConfigration;
 
     @GetMapping
-    public ResponseEntity<List<Product>> index(){
+    public ResponseEntity<List<Product>> index() {
         return new ResponseEntity<>(productService.findAll(), HttpStatus.OK);
     }
 
@@ -33,7 +33,7 @@ public class ProductController {
                               MultipartFile file) throws IOException {
 
             return new ResponseEntity<>(productService.addProduct(product, file), HttpStatus.OK);
-        }
+    }
 
     @GetMapping("/edit/{id}")
     public Product edit(@PathVariable int id) {
@@ -43,7 +43,7 @@ public class ProductController {
 
     @PutMapping("/edit")
     public Product edit(@RequestBody @Valid Product product,
-                        MultipartFile file) throws IOException{
+                        MultipartFile file) throws IOException {
 
             return productService.addProduct(product, file);
     }

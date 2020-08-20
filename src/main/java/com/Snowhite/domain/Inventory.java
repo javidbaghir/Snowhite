@@ -28,7 +28,8 @@ public class Inventory {
     @Column(nullable = false)
     private double karat;
 
-//    private int prob;
+    @Column(nullable = false)
+    private int prob;
 
     @NotNull(message = "{inventory.notNull}")
     @Column(nullable = false)
