@@ -25,6 +25,17 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(InventoryNotFoundException.class)
+    public ResponseEntity<Object> handleInventoryNotFoundException(
+            InventoryNotFoundException ex, WebRequest request) {
+
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", "Inventory not found");
+
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(NoDataFoundException.class)
     public ResponseEntity<Object> handleNodataFoundException(
             NoDataFoundException ex, WebRequest request) {
