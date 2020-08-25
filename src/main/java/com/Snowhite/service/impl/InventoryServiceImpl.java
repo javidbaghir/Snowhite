@@ -2,15 +2,17 @@ package com.Snowhite.service.impl;
 
 import com.Snowhite.domain.Inventory;
 import com.Snowhite.domain.Status;
+import com.Snowhite.domain.WeightUnite;
 import com.Snowhite.exception.InventoryNotFoundException;
 import com.Snowhite.exception.NoDataFoundException;
 import com.Snowhite.repository.InventoryRepository;
 import com.Snowhite.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class InventoryServiceImpl implements InventoryService {
@@ -19,9 +21,9 @@ public class InventoryServiceImpl implements InventoryService {
     private InventoryRepository inventoryRepository;
 
     @Override
-    public List<Inventory> findAllByStatus(Status status) {
+    public Page<Inventory> findAllByStatus(Status status, Pageable pageable) {
 
-        List<Inventory> inventories = inventoryRepository.findAllByStatus(status);
+        Page<Inventory> inventories = inventoryRepository.findAllByStatus(status, pageable);
 
         if (inventories.isEmpty()) {
             throw new NoDataFoundException();
@@ -30,20 +32,16 @@ public class InventoryServiceImpl implements InventoryService {
         return inventories;
     }
 
-//    @Override
-//    public List<Inventory> findAllByStatus(int status) {
-//
-//        List<Inventory> inventories = inventoryRepository.findAllByStatus(status);
-//
-//        if (inventories.isEmpty()) {
-//            throw new NoDataFoundException();
-//        }
-//
-//        return inventories;
-//    }
-
     @Override
     public Inventory addInventory(Inventory inventory) {
+
+        System.out.println("Service add 1");
+
+
+        inventory.setWeightUnite(WeightUnite.GRAM);
+
+        System.out.println("Service add 2");
+
 
         return inventoryRepository.save(inventory);
     }

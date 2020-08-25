@@ -1,13 +1,17 @@
 package com.Snowhite.controller;
 
+import com.Snowhite.config.SnowhiteConfigration;
 import com.Snowhite.domain.Inventory;
 import com.Snowhite.domain.Status;
-import com.Snowhite.exception.InventoryNotFoundException;
 import com.Snowhite.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -20,16 +24,34 @@ public class InventoryController {
     @Autowired
     private InventoryService inventoryService;
 
-    @GetMapping
-    public ResponseEntity<List<Inventory>> index(@RequestParam("status") String status) {
+    @Autowired
+    private SnowhiteConfigration snowhiteConfigration;
 
-        return new ResponseEntity<>(inventoryService.findAllByStatus(Status.fromValue(status)),  HttpStatus.OK);
+    @GetMapping
+    public ResponseEntity<Page<Inventory>> getInventories(@RequestParam(value = "status", required = false) Status status,
+                                             @RequestParam(value = "page", defaultValue = "0", required = false) Integer page)
+//                                             @RequestParam(value = "sortColumn",  defaultValue = "1", required = false) String sortColumn,
+//                                             @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
+                                             {
+
+        int pageSize = snowhiteConfigration.getPageSize();
+
+//        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.Direction.fromString(sortDirection), sortColumn);
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+
+        return new ResponseEntity<>(inventoryService.findAllByStatus(status, pageable),  HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<Inventory> addInventory(@RequestBody @Valid Inventory inventory) {
+    public ResponseEntity<Inventory> addInventory(@RequestBody @Valid Inventory inventory, BindingResult bindingResult) {
 
-        return new ResponseEntity<>(inventoryService.addInventory(inventory), HttpStatus.OK);
+        if (bindingResult.hasErrors()) {
+            throw new RuntimeException("Error");
+        }
+
+        System.out.println("Controller add");
+
+        return new ResponseEntity<>(inventoryService.addInventory(inventory), HttpStatus.CREATED);
     }
 
     @GetMapping("/edit/{id}")

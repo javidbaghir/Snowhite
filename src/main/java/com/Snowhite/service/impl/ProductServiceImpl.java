@@ -5,9 +5,11 @@ import com.Snowhite.exception.FileOkException;
 import com.Snowhite.exception.NoDataFoundException;
 import com.Snowhite.exception.ProductExistException;
 import com.Snowhite.exception.ProductNotFoundException;
+import com.Snowhite.repository.InventoryRepository;
 import com.Snowhite.repository.ProductRepository;
 import com.Snowhite.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +28,8 @@ public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
 
     @Override
-    public List<Product> findAll() {
-        List<Product> products = productRepository.findAll();
+    public List<Product> findAll(Pageable pageable, String filter) {
+        List<Product> products = productRepository.findAll(pageable, "%" + filter + "%");
 
         if (products.isEmpty()) {
             throw new NoDataFoundException();
@@ -66,6 +68,7 @@ public class ProductServiceImpl implements ProductService {
     public Product addProduct(Product product, MultipartFile file) throws IOException {
 
         boolean fileOK = false;
+        System.out.println(file.getBytes());
         System.out.println("2");
         byte[] bytes = file.getBytes();
         System.out.println("3");
@@ -144,13 +147,17 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    @Modifying
+    @Transactional
     @Override
     public void deleteById(int id) {
+
         Product product = productRepository.findById(id);
 
         if (product == null) {
             throw new ProductNotFoundException(id);
         } else {
+
             productRepository.deleteById(id);
         }
     }

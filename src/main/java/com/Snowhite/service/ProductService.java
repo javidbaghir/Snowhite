@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface ProductService {
 
-    List<Product> findAll();
+    List<Product> findAll(Pageable pageable, String filter);
 
     Product findById(int id);
 

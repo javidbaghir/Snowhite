@@ -8,7 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
-@Entity
+@Entity(name = "inventory")
 @Data
 public class Inventory {
 
@@ -22,6 +22,7 @@ public class Inventory {
 
     @NotNull(message = "{inventory.notNull}")
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private WeightUnite weightUnite;
 
     @NotNull(message = "{inventory.notNull}")
@@ -47,5 +48,6 @@ public class Inventory {
     private LocalDateTime updatedAt;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Status status;
 }

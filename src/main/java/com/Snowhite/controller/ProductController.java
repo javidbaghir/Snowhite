@@ -4,6 +4,9 @@ import com.Snowhite.config.SnowhiteConfigration;
 import com.Snowhite.domain.Product;
 import com.Snowhite.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,18 +23,27 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-//    @Autowired
-//    private SnowhiteConfigration snowhiteConfigration;
+    @Autowired
+    private SnowhiteConfigration snowhiteConfigration;
 
     @GetMapping
-    public ResponseEntity<List<Product>> index() {
-        return new ResponseEntity<>(productService.findAll(), HttpStatus.OK);
+    public ResponseEntity<List<Product>> getProducts(@RequestParam(value = "page", defaultValue = "0") Integer page,
+                                          @RequestParam(value = "sortColumn", defaultValue = "1", required = false) String sortColumn,
+                                          @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection,
+                                          @RequestParam(value = "filter", defaultValue = "sar", required = false) String nameFilter) {
+
+        int pageSize = snowhiteConfigration.getPageSize();
+
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.Direction.fromString(sortDirection), sortColumn);
+
+        return new ResponseEntity<>(productService.findAll(pageable, nameFilter), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<Product> addProduct(@RequestBody @Valid Product product,
-                              MultipartFile file) throws IOException {
+    public ResponseEntity<Product> addProduct(@RequestParam("name") @Valid String  name,
+                                              @RequestParam("file")  MultipartFile file) throws IOException {
 
+        var product =  Product.builder().name(name).build();
             return new ResponseEntity<>(productService.addProduct(product, file), HttpStatus.OK);
     }
 
@@ -41,23 +53,11 @@ public class ProductController {
         return productService.findById(id);
     }
 
-    @PutMapping("/edit")
+    @PostMapping("/edit")
     public Product edit(@RequestBody @Valid Product product,
                         MultipartFile file) throws IOException {
 
-            return productService.addProduct(product, file);
-    }
-
-    @DeleteMapping("/delete")
-    public void deleteProduct(@RequestParam(name = "id") int id) {
-
-        Product product = productService.findById(id);
-
-        if (product == null) {
-            throw new RuntimeException("");
-        } else {
-             productService.deleteById(id);
-        }
+            return productService.editProduct(product, file);
     }
 
 }
