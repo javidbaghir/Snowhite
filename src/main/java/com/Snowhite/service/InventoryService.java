@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface InventoryService {
 
-    Page<Inventory> findAllByStatus(Status status, Pageable pageable);
+    Page<Inventory> findAllByStatus(Status status, Pageable pageable, String filter);
 
     Inventory addInventory(Inventory inventory);
 

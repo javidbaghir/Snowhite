@@ -21,9 +21,9 @@ public class InventoryServiceImpl implements InventoryService {
     private InventoryRepository inventoryRepository;
 
     @Override
-    public Page<Inventory> findAllByStatus(Status status, Pageable pageable) {
+    public Page<Inventory> findAllByStatus(Status status, Pageable pageable, String filter) {
 
-        Page<Inventory> inventories = inventoryRepository.findAllByStatus(status, pageable);
+        Page<Inventory> inventories = inventoryRepository.findAllByStatus(status, pageable, "%" + filter + "%");
 
         if (inventories.isEmpty()) {
             throw new NoDataFoundException();
@@ -55,6 +55,6 @@ public class InventoryServiceImpl implements InventoryService {
             throw new InventoryNotFoundException(id);
         }
 
-        return inventoryRepository.findById(id);
+        return inventory;
     }
 }

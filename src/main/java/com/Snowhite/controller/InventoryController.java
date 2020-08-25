@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -29,17 +30,16 @@ public class InventoryController {
 
     @GetMapping
     public ResponseEntity<Page<Inventory>> getInventories(@RequestParam(value = "status", required = false) Status status,
-                                             @RequestParam(value = "page", defaultValue = "0", required = false) Integer page)
-//                                             @RequestParam(value = "sortColumn",  defaultValue = "1", required = false) String sortColumn,
-//                                             @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection)
-                                             {
-
+                                             @RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
+                                             @RequestParam(value = "sortColumn",  defaultValue = "id", required = false) String sortColumn,
+                                             @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection,
+                                             @RequestParam(value = "filter", defaultValue = "", required = false) String filter) {
         int pageSize = snowhiteConfigration.getPageSize();
 
-//        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.Direction.fromString(sortDirection), sortColumn);
-        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.Direction.fromString(sortDirection), sortColumn);
+//        Pageable pageable = PageRequest.of(page - 1, pageSize);
 
-        return new ResponseEntity<>(inventoryService.findAllByStatus(status, pageable),  HttpStatus.OK);
+        return new ResponseEntity<>(inventoryService.findAllByStatus(status, pageable, filter),  HttpStatus.OK);
     }
 
     @PostMapping
