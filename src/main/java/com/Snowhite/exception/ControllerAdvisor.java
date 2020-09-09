@@ -68,4 +68,22 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(AdminAlreadyExistException.class)
+    public ResponseEntity<Object> handleAdminAlreadyExistException (AdminAlreadyExistException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", "Admin already exist");
+
+        return new ResponseEntity<>(body, HttpStatus.FOUND);
+    }
+
+    @ExceptionHandler(InventoryNumberAlreadyExistException.class)
+    public ResponseEntity<Object> handleInventoryNumberAlreadyExistException (InventoryNumberAlreadyExistException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", "Inventory number already exist");
+
+        return new ResponseEntity<>(body, HttpStatus.FOUND);
+    }
 }

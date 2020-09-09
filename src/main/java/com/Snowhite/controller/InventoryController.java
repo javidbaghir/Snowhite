@@ -9,13 +9,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.text.DateFormatter;
 import javax.validation.Valid;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -30,16 +32,24 @@ public class InventoryController {
 
     @GetMapping
     public ResponseEntity<Page<Inventory>> getInventories(@RequestParam(value = "status", required = false) Status status,
-                                             @RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
+                                             @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
                                              @RequestParam(value = "sortColumn",  defaultValue = "id", required = false) String sortColumn,
-                                             @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection,
-                                             @RequestParam(value = "filter", defaultValue = "", required = false) String filter) {
+                                             @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection
+//                                             @RequestParam(value = "filter", defaultValue = "", required = false) String filter
+    ) {
+
         int pageSize = snowhiteConfigration.getPageSize();
 
         Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.Direction.fromString(sortDirection), sortColumn);
-//        Pageable pageable = PageRequest.of(page - 1, pageSize);
 
-        return new ResponseEntity<>(inventoryService.findAllByStatus(status, pageable, filter),  HttpStatus.OK);
+        if (status == null) {
+            return new ResponseEntity<>(inventoryService.findAll(pageable), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(inventoryService.findAllByStatus(status, pageable),  HttpStatus.OK);
+        }
+
+//        return new ResponseEntity<>(inventoryService.findAllByStatus(status, pageable, filter),  HttpStatus.OK);
+
     }
 
     @PostMapping
@@ -48,8 +58,6 @@ public class InventoryController {
         if (bindingResult.hasErrors()) {
             throw new RuntimeException("Error");
         }
-
-        System.out.println("Controller add");
 
         return new ResponseEntity<>(inventoryService.addInventory(inventory), HttpStatus.CREATED);
     }
@@ -60,11 +68,54 @@ public class InventoryController {
         return inventoryService.findById(id);
     }
 
-    @PutMapping("/edit")
+    @PostMapping("/edit")
     public ResponseEntity<Inventory> updateInventory(@RequestBody @Valid Inventory inventory) {
 
         return new ResponseEntity<>(inventoryService.addInventory(inventory), HttpStatus.OK);
 
     }
 
+    @PostMapping("/sale/{id}")
+    public ResponseEntity<Inventory> saleInventory(@PathVariable(name = "id") int id,
+                                                  @RequestParam(value = "salePrice") Double salePrice) {
+
+        System.out.println("Id " + id);
+
+        System.out.println("Sale price " + salePrice);
+
+        Inventory inventory = inventoryService.findById(id);
+
+        inventory.setStatus(Status.SOLD);
+
+        inventory.setSalePrice(salePrice);
+
+        return new ResponseEntity<>(inventoryService.addInventory(inventory), HttpStatus.OK);
+    }
+
+    @PostMapping("/destroy/{id}")
+    public ResponseEntity<Inventory> destroyInventory(@PathVariable(name = "id") int id) {
+
+        Inventory inventory = inventoryService.findById(id);
+
+        inventory.setStatus(Status.DESTROYED);
+
+        return new ResponseEntity<>(inventoryService.addInventory(inventory), HttpStatus.OK);
+    }
+
+    @GetMapping("/countInventories")
+    public Long inventoriesCount() {
+        return inventoryService.count();
+    }
+
+    @GetMapping("/date/range")
+    public List<Inventory> findDateRange(
+            @RequestParam(value = "startDate") Date startDate,
+            @RequestParam(value = "endDate") Date endDate
+//            Date startDate,
+//            Date endDate
+        ){
+
+
+        return inventoryService.findDateRange(startDate, endDate);
+    }
 }

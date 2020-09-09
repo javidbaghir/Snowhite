@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity(name = "inventory")
 @Data
@@ -15,6 +16,9 @@ public class Inventory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Column(nullable = false)
+    private long inventoryNumber;
 
     @NotNull(message = "{inventory.notNull}")
     @Column(nullable = false)
@@ -36,7 +40,7 @@ public class Inventory {
     @Column(nullable = false)
     private double cost;
 
-    private double salePrice;
+    private Double salePrice;
 
     @ManyToOne
     private Product product;

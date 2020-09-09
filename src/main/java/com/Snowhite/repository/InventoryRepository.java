@@ -4,19 +4,32 @@ import com.Snowhite.domain.Inventory;
 import com.Snowhite.domain.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface InventoryRepository extends PagingAndSortingRepository<Inventory, Integer> {
+import java.util.Date;
+import java.util.List;
 
-//    @Query(nativeQuery = true, value = "SELECT i FROM inventory i where i.status = :status")
-//    @Query(value = "select p from products p where CONCAT (p.name) like :filter")
-    Page<Inventory> findAllByStatus(Status status, Pageable pageable, String filter);
-//    List<Inventory> findAllByStatus(Status status);
+@Repository
+public interface InventoryRepository extends JpaRepository<Inventory, Integer> {
+
+//    Page<Inventory> findAllByStatus(Status status, Pageable pageable, String filter);
+
+    Page<Inventory> findAllByStatus(Status status, Pageable pageable);
+
+    Page<Inventory> findAll(Pageable pageable);
 
     Inventory findById(int id);
+
+    long count();
+
+    Inventory findByInventoryNumber(long number);
+
+    @Query(nativeQuery = true, value = "SELECT i from inventory i where i.status = 'SOLD' and i.updated_at BETWEEN :start_date AND :end_date")
+    List<Inventory> findDateRange(@Param("start_date") Date startDate, @Param("end_date") Date endDate);
 
 
 }

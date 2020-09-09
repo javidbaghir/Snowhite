@@ -9,6 +9,7 @@ import com.Snowhite.repository.InventoryRepository;
 import com.Snowhite.repository.ProductRepository;
 import com.Snowhite.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;

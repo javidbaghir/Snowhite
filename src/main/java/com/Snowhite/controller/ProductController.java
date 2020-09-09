@@ -4,6 +4,7 @@ import com.Snowhite.config.SnowhiteConfigration;
 import com.Snowhite.domain.Product;
 import com.Snowhite.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,10 +28,11 @@ public class ProductController {
     private SnowhiteConfigration snowhiteConfigration;
 
     @GetMapping
-    public ResponseEntity<List<Product>> getProducts(@RequestParam(value = "page", defaultValue = "0") Integer page,
-                                          @RequestParam(value = "sortColumn", defaultValue = "1", required = false) String sortColumn,
-                                          @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection,
-                                          @RequestParam(value = "filter", defaultValue = "sar", required = false) String nameFilter) {
+    public ResponseEntity<List<Product>> getProducts(@RequestParam(value = "page", defaultValue = "1") Integer page,
+                                                     @RequestParam(value = "sortColumn", defaultValue = "id", required = false) String sortColumn,
+                                                     @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection,
+                                                     @RequestParam(value = "filter", defaultValue = "", required = false) String nameFilter
+    ) {
 
         int pageSize = snowhiteConfigration.getPageSize();
 
@@ -59,5 +61,7 @@ public class ProductController {
 
             return productService.editProduct(product, file);
     }
+
+
 
 }

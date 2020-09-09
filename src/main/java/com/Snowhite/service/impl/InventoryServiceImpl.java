@@ -4,6 +4,7 @@ import com.Snowhite.domain.Inventory;
 import com.Snowhite.domain.Status;
 import com.Snowhite.domain.WeightUnite;
 import com.Snowhite.exception.InventoryNotFoundException;
+import com.Snowhite.exception.InventoryNumberAlreadyExistException;
 import com.Snowhite.exception.NoDataFoundException;
 import com.Snowhite.repository.InventoryRepository;
 import com.Snowhite.service.InventoryService;
@@ -12,6 +13,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -21,9 +25,9 @@ public class InventoryServiceImpl implements InventoryService {
     private InventoryRepository inventoryRepository;
 
     @Override
-    public Page<Inventory> findAllByStatus(Status status, Pageable pageable, String filter) {
+    public Page<Inventory> findAllByStatus(Status status, Pageable pageable) {
 
-        Page<Inventory> inventories = inventoryRepository.findAllByStatus(status, pageable, "%" + filter + "%");
+        Page<Inventory> inventories = inventoryRepository.findAllByStatus(status, pageable);
 
         if (inventories.isEmpty()) {
             throw new NoDataFoundException();
@@ -33,18 +37,40 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
+    public Page<Inventory> findAll(Pageable pageable) {
+
+        Page<Inventory> inventories = inventoryRepository.findAll(pageable);
+
+        if (inventories.isEmpty()) {
+            throw new NoDataFoundException();
+        }
+        return inventories;
+    }
+
+    //    @Override
+//    public Page<Inventory> findAllByStatus(Status status, Pageable pageable, String filter) {
+//
+//        Page<Inventory> inventories = inventoryRepository.findAllByStatus(status, pageable, "%" + filter + "%");
+//
+//        if (inventories.isEmpty()) {
+//            throw new NoDataFoundException();
+//        }
+//
+//        return inventories;
+//    }
+
+    @Override
     public Inventory addInventory(Inventory inventory) {
 
-        System.out.println("Service add 1");
+        Inventory number = inventoryRepository.findByInventoryNumber(inventory.getInventoryNumber());
 
-
-        inventory.setWeightUnite(WeightUnite.GRAM);
-
-        System.out.println("Service add 2");
-
-
-        return inventoryRepository.save(inventory);
+        if (number != null) {
+            throw new InventoryNumberAlreadyExistException();
+        } else {
+            return inventoryRepository.save(inventory);
+        }
     }
+
 
     @Override
     public Inventory findById(int id) {
@@ -56,5 +82,20 @@ public class InventoryServiceImpl implements InventoryService {
         }
 
         return inventory;
+    }
+
+    @Override
+    public Long count() {
+        return inventoryRepository.count();
+    }
+
+    @Override
+    public List<Inventory> findDateRange(Date startDate, Date endDate) {
+        List<Inventory> inventories = inventoryRepository.findDateRange(startDate, endDate);
+
+        if (inventories == null) {
+            throw new NoDataFoundException();
+        }
+        return inventories;
     }
 }
