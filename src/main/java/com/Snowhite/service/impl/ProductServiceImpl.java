@@ -148,19 +148,4 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    @Modifying
-    @Transactional
-    @Override
-    public void deleteById(int id) {
-
-        Product product = productRepository.findById(id);
-
-        if (product == null) {
-            throw new ProductNotFoundException(id);
-        } else {
-
-            productRepository.deleteById(id);
-        }
-    }
-
 }

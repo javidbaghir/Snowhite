@@ -1,8 +1,10 @@
 package com.Snowhite.controller;
 
 import com.Snowhite.config.SnowhiteConfigration;
+import com.Snowhite.domain.Inventory;
 import com.Snowhite.domain.Product;
 import com.Snowhite.service.ProductService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +29,9 @@ public class ProductController {
     @Autowired
     private SnowhiteConfigration snowhiteConfigration;
 
+    @ApiOperation(value = "Get all Products",
+            notes = "This method returns all products with paging",
+            response = ResponseEntity.class)
     @GetMapping
     public ResponseEntity<List<Product>> getProducts(@RequestParam(value = "page", defaultValue = "1") Integer page,
                                                      @RequestParam(value = "sortColumn", defaultValue = "id", required = false) String sortColumn,
@@ -41,25 +46,39 @@ public class ProductController {
         return new ResponseEntity<>(productService.findAll(pageable, nameFilter), HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Add Product",
+            notes = "This method adds a new product",
+            response = ResponseEntity.class)
     @PostMapping
     public ResponseEntity<Product> addProduct(@RequestParam("name") @Valid String  name,
                                               @RequestParam("file")  MultipartFile file) throws IOException {
 
-        var product =  Product.builder().name(name).build();
-            return new ResponseEntity<>(productService.addProduct(product, file), HttpStatus.OK);
+            var product =  Product.builder().name(name).build();
+            return new ResponseEntity<>(productService.addProduct(product, file), HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "Update Product get mapping",
+            notes = "This method returns edit method according to id",
+            response = Product.class)
     @GetMapping("/edit/{id}")
-    public Product edit(@PathVariable int id) {
+    public Product edit(@PathVariable(name = "id") int id) {
 
         return productService.findById(id);
     }
 
+    @ApiOperation(value = "Update Product post mapping",
+            notes = "This method update product",
+            response = ResponseEntity.class)
     @PostMapping("/edit")
-    public Product edit(@RequestBody @Valid Product product,
-                        MultipartFile file) throws IOException {
+    public ResponseEntity<Product> edit(@RequestParam("name") @Valid String  name,
+                                        @RequestParam("file")  MultipartFile file) throws IOException {
 
-            return productService.editProduct(product, file);
+        System.out.println("Name " + name);
+        System.out.println("File " + file);
+
+        var product = Product.builder().name(name).build();
+
+     return new ResponseEntity<>(productService.editProduct(product, file), HttpStatus.OK);
     }
 
 

@@ -35,6 +35,4 @@ public class Admin {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @NotNull
-    private int status;
 }

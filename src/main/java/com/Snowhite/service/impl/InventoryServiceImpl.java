@@ -6,6 +6,7 @@ import com.Snowhite.domain.WeightUnite;
 import com.Snowhite.exception.InventoryNotFoundException;
 import com.Snowhite.exception.InventoryNumberAlreadyExistException;
 import com.Snowhite.exception.NoDataFoundException;
+import com.Snowhite.exception.NoGainsThisMonth;
 import com.Snowhite.repository.InventoryRepository;
 import com.Snowhite.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class InventoryServiceImpl implements InventoryService {
@@ -71,6 +73,11 @@ public class InventoryServiceImpl implements InventoryService {
         }
     }
 
+    @Override
+    public Inventory editInvenotory(Inventory inventory) {
+
+        return inventoryRepository.save(inventory);
+    }
 
     @Override
     public Inventory findById(int id) {
@@ -90,12 +97,29 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public List<Inventory> findDateRange(Date startDate, Date endDate) {
-        List<Inventory> inventories = inventoryRepository.findDateRange(startDate, endDate);
+    public Optional<Inventory> getInventoryByDate(Date startDate, Date endDate) {
+        Optional<Inventory> inventories = inventoryRepository.getInventoryByDate(startDate, endDate);
 
-        if (inventories == null) {
+        if (inventories.isEmpty()) {
             throw new NoDataFoundException();
         }
         return inventories;
+    }
+
+    @Override
+    public Long getGainsByDate(Date startDate, Date endDate) {
+
+        Long getProfitByDate = inventoryRepository.getGainsByDate(startDate, endDate);
+
+        if (getProfitByDate == null) {
+            throw new NoGainsThisMonth();
+        } else {
+            return getProfitByDate;
+        }
+    }
+
+    @Override
+    public Long getGeneralBudget() {
+        return inventoryRepository.getGeneralBudget();
     }
 }

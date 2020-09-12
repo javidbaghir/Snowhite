@@ -2,6 +2,6 @@ package com.Snowhite.domain;
 
 public enum  Status {
 
-    AVAILABLE, SOLD, DESTROYED;
+    AVAILABLE, SOLD, DESTROYED, RETURN
 
 }

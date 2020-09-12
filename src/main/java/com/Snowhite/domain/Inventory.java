@@ -42,6 +42,11 @@ public class Inventory {
 
     private Double salePrice;
 
+    @NotNull(message = "{inventory.notNull}")
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Currency currency;
+
     @ManyToOne
     private Product product;
 

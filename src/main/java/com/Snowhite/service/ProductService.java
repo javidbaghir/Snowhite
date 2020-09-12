@@ -24,5 +24,4 @@ public interface ProductService {
 
     Product editProduct(Product product, MultipartFile file) throws IOException;
 
-    void deleteById(int id);
 }

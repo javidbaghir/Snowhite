@@ -12,11 +12,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface InventoryRepository extends JpaRepository<Inventory, Integer> {
-
-//    Page<Inventory> findAllByStatus(Status status, Pageable pageable, String filter);
 
     Page<Inventory> findAllByStatus(Status status, Pageable pageable);
 
@@ -28,8 +27,13 @@ public interface InventoryRepository extends JpaRepository<Inventory, Integer> {
 
     Inventory findByInventoryNumber(long number);
 
-    @Query(nativeQuery = true, value = "SELECT i from inventory i where i.status = 'SOLD' and i.updated_at BETWEEN :start_date AND :end_date")
-    List<Inventory> findDateRange(@Param("start_date") Date startDate, @Param("end_date") Date endDate);
+    @Query(nativeQuery = true, value = "SELECT i.id, i.inventory_number, i.karat, i.weight, i.weight_unite, i.prob, i.cost, i.sale_price, i.product_id, i.status, i.created_at, i.updated_at from inventory i where i.status = 'SOLD' and i.updated_at BETWEEN :start_date AND :end_date")
+    Optional<Inventory> getInventoryByDate(@Param("start_date") Date startDate, @Param("end_date") Date endDate);
 
+    @Query(nativeQuery = true, value = "SELECT sum(i.cost) FROM inventory i WHERE i.status = 'AVAILABLE'")
+    Long getGeneralBudget();
+
+    @Query(nativeQuery = true, value = "select sum(i.sale_price - i.cost) from inventory i where i.status = 'SOLD' and i.updated_at BETWEEN :start_date AND :end_date")
+    Long getGainsByDate(@Param("start_date") Date startDate, @Param("end_date") Date endDate);
 
 }
