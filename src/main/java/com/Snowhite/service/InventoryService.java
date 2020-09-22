@@ -2,32 +2,34 @@ package com.Snowhite.service;
 
 import com.Snowhite.domain.Inventory;
 import com.Snowhite.domain.Status;
+import com.Snowhite.projection.BudgetProjection;
+import com.Snowhite.projection.GainProjection;
+import com.Snowhite.projection.TotalWeight;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 public interface InventoryService {
 
-    Page<Inventory> findAllByStatus(Status status, Pageable pageable);
+    List<Inventory> findAll(Status status, Date startDate, Date endDate, Pageable pageable);
 
     Page<Inventory> findAll(Pageable pageable);
 
     Inventory addInventory(Inventory inventory);
 
-    Inventory editInvenotory(Inventory inventory);
+    Inventory updateInventory(Inventory inventory);
 
     Inventory findById(int id);
 
-    Long count();
+    List<Inventory> getInventoryByDate(Date startDate, Date endDate);
 
-    Optional<Inventory> getInventoryByDate(Date startDate, Date endDate);
+    List<GainProjection> getGainsByDate(Date startDate, Date endDate);
 
-    Long getGainsByDate(Date startDate, Date endDate);
+    List<BudgetProjection> getGeneralBudget();
 
-    Long getGeneralBudget();
+    List<TotalWeight> getTotalWeight();
 
 
 }

@@ -5,11 +5,9 @@ import com.Snowhite.exception.FileOkException;
 import com.Snowhite.exception.NoDataFoundException;
 import com.Snowhite.exception.ProductExistException;
 import com.Snowhite.exception.ProductNotFoundException;
-import com.Snowhite.repository.InventoryRepository;
 import com.Snowhite.repository.ProductRepository;
 import com.Snowhite.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
@@ -69,12 +67,8 @@ public class ProductServiceImpl implements ProductService {
     public Product addProduct(Product product, MultipartFile file) throws IOException {
 
         boolean fileOK = false;
-        System.out.println(file.getBytes());
-        System.out.println("2");
         byte[] bytes = file.getBytes();
-        System.out.println("3");
         String fileName = file.getOriginalFilename();
-        System.out.println("4");
         Path path = Paths.get("src/main/resources/static/media/" + fileName);
 
         if (fileName.endsWith("jpg") || fileName.endsWith("png")) {
@@ -103,6 +97,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
+    @Modifying
     @Override
     public Product editProduct(Product product, MultipartFile file) throws IOException {
 
@@ -144,7 +139,7 @@ public class ProductServiceImpl implements ProductService {
                 product.setImage(currentProduct.getImage());
             }
 
-            return productRepository.save(product);
+            return productRepository.updateProduct(product.getId(), product.getName(), file);
         }
     }
 

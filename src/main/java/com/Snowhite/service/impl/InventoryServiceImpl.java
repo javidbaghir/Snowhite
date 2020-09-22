@@ -2,23 +2,25 @@ package com.Snowhite.service.impl;
 
 import com.Snowhite.domain.Inventory;
 import com.Snowhite.domain.Status;
-import com.Snowhite.domain.WeightUnite;
+import com.Snowhite.projection.BudgetProjection;
 import com.Snowhite.exception.InventoryNotFoundException;
 import com.Snowhite.exception.InventoryNumberAlreadyExistException;
 import com.Snowhite.exception.NoDataFoundException;
 import com.Snowhite.exception.NoGainsThisMonth;
+import com.Snowhite.projection.GainProjection;
+import com.Snowhite.projection.TotalWeight;
 import com.Snowhite.repository.InventoryRepository;
+import com.Snowhite.repository.InventorySpesificationImpl;
 import com.Snowhite.service.InventoryService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class InventoryServiceImpl implements InventoryService {
@@ -26,10 +28,13 @@ public class InventoryServiceImpl implements InventoryService {
     @Autowired
     private InventoryRepository inventoryRepository;
 
-    @Override
-    public Page<Inventory> findAllByStatus(Status status, Pageable pageable) {
+    @Autowired
+    private InventorySpesificationImpl inventorySpesification;
 
-        Page<Inventory> inventories = inventoryRepository.findAllByStatus(status, pageable);
+    @Override
+    public List<Inventory> findAll(Status status, Date startDate, Date endDate, Pageable pageable){
+
+        List<Inventory> inventories = inventorySpesification.findByCriteria(status, startDate, endDate, pageable);
 
         if (inventories.isEmpty()) {
             throw new NoDataFoundException();
@@ -37,6 +42,8 @@ public class InventoryServiceImpl implements InventoryService {
 
         return inventories;
     }
+
+
 
     @Override
     public Page<Inventory> findAll(Pageable pageable) {
@@ -74,10 +81,17 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public Inventory editInvenotory(Inventory inventory) {
-
+    public Inventory updateInventory(Inventory inventory) {
         return inventoryRepository.save(inventory);
     }
+
+    //    @Override
+//    public Inventory updateInventory(Inventory inventory) {
+//
+//        return inventoryRepository.updateInventory(inventory.getInventoryNumber(), inventory.getKarat(), inventory.getWeight(), inventory.getWeightUnite(),
+//                inventory.getProb(), inventory.getCost(), inventory.getSalePrice(), inventory.getCurrency(), inventory.getProduct().getId(),
+//                inventory.getStatus(), inventory.getDateOfAddition());
+//    }
 
     @Override
     public Inventory findById(int id) {
@@ -92,34 +106,37 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public Long count() {
-        return inventoryRepository.count();
-    }
+    public List<Inventory> getInventoryByDate(Date startDate, Date endDate) {
 
-    @Override
-    public Optional<Inventory> getInventoryByDate(Date startDate, Date endDate) {
-        Optional<Inventory> inventories = inventoryRepository.getInventoryByDate(startDate, endDate);
+        List<Inventory> inventories = inventoryRepository.getInventoryByDate(startDate, endDate);
 
         if (inventories.isEmpty()) {
             throw new NoDataFoundException();
+        } else {
+            return inventories;
         }
-        return inventories;
     }
 
     @Override
-    public Long getGainsByDate(Date startDate, Date endDate) {
+    public List<GainProjection> getGainsByDate(Date startDate, Date endDate) {
 
-        Long getProfitByDate = inventoryRepository.getGainsByDate(startDate, endDate);
+        List<GainProjection> getGainsByDate = inventoryRepository.getGainsByDate(startDate, endDate);
 
-        if (getProfitByDate == null) {
+
+        if (getGainsByDate.isEmpty()) {
             throw new NoGainsThisMonth();
         } else {
-            return getProfitByDate;
+            return getGainsByDate;
         }
     }
 
     @Override
-    public Long getGeneralBudget() {
+    public List<BudgetProjection> getGeneralBudget() {
         return inventoryRepository.getGeneralBudget();
+    }
+
+    @Override
+    public List<TotalWeight> getTotalWeight() {
+        return inventoryRepository.getTotalWeight();
     }
 }

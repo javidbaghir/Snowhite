@@ -1,5 +1,6 @@
 package com.Snowhite;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +28,11 @@ public class SnowhiteApplication {
 				.apis(RequestHandlerSelectors.basePackage("com.Snowhite"))
 				.build()
 				.apiInfo(getRestApiInfo());
+	}
+
+	@Bean
+	public ModelMapper modelMapper() {
+		return new ModelMapper();
 	}
 
 	private ApiInfo getRestApiInfo() {

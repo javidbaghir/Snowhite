@@ -50,6 +50,9 @@ public class Inventory {
     @ManyToOne
     private Product product;
 
+    @Temporal(TemporalType.DATE)
+    private Date dateOfAddition;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

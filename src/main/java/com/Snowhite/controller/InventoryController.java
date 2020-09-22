@@ -1,12 +1,17 @@
 package com.Snowhite.controller;
 
 import com.Snowhite.config.SnowhiteConfigration;
+import com.Snowhite.domain.GetInventoriesRequest;
 import com.Snowhite.domain.Inventory;
 import com.Snowhite.domain.Status;
+import com.Snowhite.projection.BudgetProjection;
+import com.Snowhite.projection.GainProjection;
+import com.Snowhite.projection.TotalWeight;
 import com.Snowhite.service.InventoryService;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,11 +23,14 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
+
 
 @RestController
-@RequestMapping("/inventories")
+@RequestMapping("api/v1/inventories")
+@CrossOrigin
 public class InventoryController {
+
+    static Logger log = LoggerFactory.getLogger(InventoryController.class.getName());
 
     @Autowired
     private InventoryService inventoryService;
@@ -30,27 +38,23 @@ public class InventoryController {
     @Autowired
     private SnowhiteConfigration snowhiteConfigration;
 
+
     @ApiOperation(value = "Get all Inventories",
                   notes = "This method returns all inventories with status and paging",
                   response = ResponseEntity.class)
     @GetMapping
-    public ResponseEntity<Page<Inventory>> getInventories(@RequestParam(value = "status", required = false) Status status,
-                                             @RequestParam(value = "page", defaultValue = "1", required = false) Integer page,
-                                             @RequestParam(value = "sortColumn",  defaultValue = "id", required = false) String sortColumn,
-                                             @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection
-//                                             @RequestParam(value = "filter", defaultValue = "", required = false) String filter
-    ) {
+    public ResponseEntity<List<Inventory>> getInventories(@RequestBody GetInventoriesRequest request) {
+
+        System.out.println("Request - " + request);
 
         int pageSize = snowhiteConfigration.getPageSize();
 
-        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.Direction.fromString(sortDirection), sortColumn);
+        Pageable pageable = PageRequest.of(request.getPage() - 1, pageSize, Sort.Direction.fromString(request.getSortDirection()),request.getSortColumn());
 
-        if (status == null) {
-            return new ResponseEntity<>(inventoryService.findAll(pageable), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(inventoryService.findAllByStatus(status, pageable),  HttpStatus.OK);
-        }
-
+//        if (status == null) {
+//            return new ResponseEntity<>(inventoryService.findAll(pageable), HttpStatus.OK);
+//        } else {
+            return new ResponseEntity<>(inventoryService.findAll(request.getStatus(),request.getStartDate(),request.getEndDate(), pageable),  HttpStatus.OK);
 //        return new ResponseEntity<>(inventoryService.findAllByStatus(status, pageable, filter),  HttpStatus.OK);
 
     }
@@ -61,11 +65,17 @@ public class InventoryController {
     @PostMapping
     public ResponseEntity<Inventory> addInventory(@RequestBody @Valid Inventory inventory, BindingResult bindingResult) {
 
+        log.debug("Inventory add post method is called");
+
         if (bindingResult.hasErrors()) {
             throw new RuntimeException("Error");
         }
 
-        return new ResponseEntity<>(inventoryService.addInventory(inventory), HttpStatus.CREATED);
+        Inventory addInventory = inventoryService.addInventory(inventory);
+
+        log.info("New inventory added " + addInventory);
+
+        return new ResponseEntity<>(addInventory, HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "Update Inventory get mapping",
@@ -83,7 +93,12 @@ public class InventoryController {
     @PostMapping("/edit")
     public ResponseEntity<Inventory> updateInventory(@RequestBody @Valid Inventory inventory) {
 
-        return new ResponseEntity<>(inventoryService.addInventory(inventory), HttpStatus.OK);
+        log.debug("Inventory edit post method is called");
+
+        Inventory updateInventory = inventoryService.updateInventory(inventory);
+        log.info("This " + inventory.getId() + " - id inventory has been updated, Inventory - " + updateInventory);
+
+        return new ResponseEntity<>(updateInventory, HttpStatus.OK);
 
     }
 
@@ -94,9 +109,7 @@ public class InventoryController {
     public ResponseEntity<Inventory> saleInventory(@PathVariable(name = "id") int id,
                                                   @RequestParam(value = "salePrice") Double salePrice) {
 
-        System.out.println("Id " + id);
-
-        System.out.println("Sale price " + salePrice);
+        log.debug("Inventory sale post method is called");
 
         Inventory inventory = inventoryService.findById(id);
 
@@ -104,7 +117,11 @@ public class InventoryController {
 
         inventory.setSalePrice(salePrice);
 
-        return new ResponseEntity<>(inventoryService.addInventory(inventory), HttpStatus.OK);
+        Inventory saleInventory = inventoryService.updateInventory(inventory);
+
+        log.info("This " + inventory.getId() + " - id inventory was sold for " + salePrice + " " + saleInventory.getCurrency());
+
+        return new ResponseEntity<>(saleInventory, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Destroy Inventory",
@@ -113,11 +130,18 @@ public class InventoryController {
     @PostMapping("/destroy/{id}")
     public ResponseEntity<Inventory> destroyInventory(@PathVariable(name = "id") int id) {
 
+        log.debug("Inventory destroy post method is called");
+
         Inventory inventory = inventoryService.findById(id);
 
         inventory.setStatus(Status.DESTROYED);
 
-        return new ResponseEntity<>(inventoryService.addInventory(inventory), HttpStatus.OK);
+        Inventory destroyInventory = inventoryService.updateInventory(inventory);
+
+        log.info("This " + destroyInventory.getId() + " - id inventory was destroyed");
+
+
+        return new ResponseEntity<>(destroyInventory, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Return Inventory",
@@ -125,21 +149,18 @@ public class InventoryController {
                   response = ResponseEntity.class)
     @PostMapping("/return/{id}")
     public ResponseEntity<Inventory> returnInventory(@PathVariable(name = "id") int id) {
+
+        log.debug("Inventory destroy post method is called");
+
         Inventory inventory = inventoryService.findById(id);
 
         inventory.setStatus(Status.RETURN);
 
-        System.out.println("Inventory " + inventory);
+        Inventory returnInventory = inventoryService.updateInventory(inventory);
 
-        return new ResponseEntity<>(inventoryService.editInvenotory(inventory), HttpStatus.OK);
-    }
+        log.info("This " + returnInventory.getId() + " - id inventory was returned");
 
-    @ApiOperation(value = "Number of inventories",
-                  notes = "This method returns all number of inventories",
-                  response = Long.class)
-    @GetMapping("/countInventories")
-    public Long inventoriesCount() {
-        return inventoryService.count();
+        return new ResponseEntity<>(returnInventory, HttpStatus.OK);
     }
 
 
@@ -148,7 +169,7 @@ public class InventoryController {
                   notes = "This method returns inventories sold between dates",
                   response = List.class)
     @GetMapping("/inventory/date")
-    public Optional<Inventory> getInventoryByDate (
+    public List<Inventory> getInventoryByDate (
             @RequestParam(value = "startDate") Date startDate,
             @RequestParam(value = "endDate") Date endDate) {
 
@@ -156,22 +177,46 @@ public class InventoryController {
     }
 
     @ApiOperation(value = "Gains between dates",
-            notes = "This method returns gains between dates",
-            response = Long.class)
+            notes = "This method returns gains between dates with currency",
+            response = GainProjection.class)
     @GetMapping("/gains")
-    public Long getGainsByDate(@RequestParam(value = "startDate") Date startDate,
-                @RequestParam(value = "endDate") Date endDate) {
+    public List<GainProjection> getGainsByDate(@RequestParam(value = "startDate") Date startDate,
+                                               @RequestParam(value = "endDate") Date endDate) {
+
+        log.debug("Inventory gains by date get method is called");
+
+        log.info("He looked at his earnings between " + startDate + " - " + endDate);
 
         return inventoryService.getGainsByDate(startDate, endDate);
     }
 
 
     @ApiOperation(value = "General budget",
-                  notes = "This method returns all my budget",
-                  response = Long.class)
+                  notes = "This method returns all my budget with currency",
+                  response = BudgetProjection.class)
     @GetMapping("/generalBudget")
-    public Long getGeneralBudget() {
+    public List<BudgetProjection> getGeneralBudget() {
+
+        log.debug("Inventory get general budget get method is called");
+
+
+        log.info("He looked at his budget");
+
         return inventoryService.getGeneralBudget();
+    }
+
+
+    @ApiOperation(value = "Total weight",
+            notes = "This method returns all my weight with unite",
+            response = TotalWeight.class)
+    @GetMapping("/totalWeight")
+    public List<TotalWeight> getTotalWeight() {
+
+        log.debug("Inventory get total weight get method is called");
+
+        log.info("He looked at his total weight");
+
+        return inventoryService.getTotalWeight();
     }
 
 

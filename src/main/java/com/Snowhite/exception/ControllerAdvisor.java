@@ -69,11 +69,11 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(AdminAlreadyExistException.class)
-    public ResponseEntity<Object> handleAdminAlreadyExistException (AdminAlreadyExistException ex) {
+    @ExceptionHandler(UserAlreadyExistException.class)
+    public ResponseEntity<Object> handleUserAlreadyExistException(UserAlreadyExistException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
-        body.put("message", "Admin already exist");
+        body.put("message", "User already exist");
 
         return new ResponseEntity<>(body, HttpStatus.FOUND);
     }
@@ -101,6 +101,15 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("message", "Bu ay heç bir qazanc əldə edilməyib");
+
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Object> handleUserNotFoundException (UserNotFoundException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", "Belə istifadəçi tapılmadı!");
 
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }

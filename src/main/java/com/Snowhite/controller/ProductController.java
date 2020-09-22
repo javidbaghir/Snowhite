@@ -1,12 +1,12 @@
 package com.Snowhite.controller;
 
 import com.Snowhite.config.SnowhiteConfigration;
-import com.Snowhite.domain.Inventory;
 import com.Snowhite.domain.Product;
 import com.Snowhite.service.ProductService;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -20,8 +20,12 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("api/v1/products")
+@CrossOrigin
 public class ProductController {
+
+    static Logger log = LoggerFactory.getLogger(ProductController.class.getName());
+
 
     @Autowired
     private ProductService productService;
@@ -46,16 +50,37 @@ public class ProductController {
         return new ResponseEntity<>(productService.findAll(pageable, nameFilter), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Add Product",
-            notes = "This method adds a new product",
-            response = ResponseEntity.class)
-    @PostMapping
-    public ResponseEntity<Product> addProduct(@RequestParam("name") @Valid String  name,
-                                              @RequestParam("file")  MultipartFile file) throws IOException {
+//    @ApiOperation(value = "Add Product",
+//            notes = "This method adds a new product",
+//            response = ResponseEntity.class)
+//    @PostMapping
+//    public ResponseEntity<Product> addProduct(@RequestParam("name") @Valid String  name,
+//                                              @RequestParam("file")  MultipartFile file) throws IOException {
+//
+//        log.debug("Product add post method is called");
+//
+//        var product =  Product.builder().name(name).build();
+//
+//        Product addProduct = productService.addProduct(product, file);
+//
+//        log.info("New product added, product - " + addProduct);
+//
+//        return new ResponseEntity<>(addProduct, HttpStatus.CREATED);
+//    }
 
-            var product =  Product.builder().name(name).build();
-            return new ResponseEntity<>(productService.addProduct(product, file), HttpStatus.CREATED);
+    @PostMapping
+    public ResponseEntity<Product> addProduct(@Valid Product product,
+                                              MultipartFile file) throws IOException {
+
+        log.debug("Product add post method is called");
+
+        Product addProduct = productService.addProduct(product, file);
+
+        log.info("New product added, product - " + addProduct);
+
+        return new ResponseEntity<>(addProduct, HttpStatus.CREATED);
     }
+
 
     @ApiOperation(value = "Update Product get mapping",
             notes = "This method returns edit method according to id",
@@ -70,17 +95,18 @@ public class ProductController {
             notes = "This method update product",
             response = ResponseEntity.class)
     @PostMapping("/edit")
-    public ResponseEntity<Product> edit(@RequestParam("name") @Valid String  name,
-                                        @RequestParam("file")  MultipartFile file) throws IOException {
+    public ResponseEntity<Product> edit(@Valid Product product,
+                                        MultipartFile file) throws IOException {
 
-        System.out.println("Name " + name);
-        System.out.println("File " + file);
+        log.debug("Product edit post method is called");
 
-        var product = Product.builder().name(name).build();
+//        var product = Product.builder().name(name).build();
 
-     return new ResponseEntity<>(productService.editProduct(product, file), HttpStatus.OK);
+        Product editProduct = productService.editProduct(product, file);
+
+        log.info("This " + editProduct + "  products has been updated");
+
+     return new ResponseEntity<>(editProduct, HttpStatus.OK);
     }
-
-
 
 }
