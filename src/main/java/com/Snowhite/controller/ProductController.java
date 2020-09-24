@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -37,7 +38,7 @@ public class ProductController {
             notes = "This method returns all products with paging",
             response = ResponseEntity.class)
     @GetMapping
-    public ResponseEntity<List<Product>> getProducts(@RequestParam(value = "page", defaultValue = "1") Integer page,
+    public ResponseEntity<Page<Product>> getProducts(@RequestParam(value = "page", defaultValue = "1") Integer page,
                                                      @RequestParam(value = "sortColumn", defaultValue = "id", required = false) String sortColumn,
                                                      @RequestParam(value = "sortDirection", defaultValue = "asc", required = false) String sortDirection,
                                                      @RequestParam(value = "filter", defaultValue = "", required = false) String nameFilter
@@ -94,15 +95,20 @@ public class ProductController {
     @ApiOperation(value = "Update Product post mapping",
             notes = "This method update product",
             response = ResponseEntity.class)
-    @PostMapping("/edit")
-    public ResponseEntity<Product> edit(@Valid Product product,
+    @PutMapping("/edit")
+    public ResponseEntity<Product> update(@Valid Product product,
                                         MultipartFile file) throws IOException {
+
+        System.out.println("Product " + product);
+        System.out.println("File " + file);
 
         log.debug("Product edit post method is called");
 
 //        var product = Product.builder().name(name).build();
 
-        Product editProduct = productService.editProduct(product, file);
+        Product editProduct = productService.updateProduct(product, file);
+
+        System.out.println("Edit " + editProduct);
 
         log.info("This " + editProduct + "  products has been updated");
 

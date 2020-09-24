@@ -113,4 +113,21 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(NoSalePriceException.class)
+    public ResponseEntity<Object> handleNoSalePriceException (NoSalePriceException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", "Zəhmət olmasa satış qiymətini yazın");
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(DateOfAdditionException.class)
+    public ResponseEntity<Object> handleDateOfAdditionException (DateOfAdditionException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", "Zəhmət olmasa tarixi qeyd edin");
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
 }

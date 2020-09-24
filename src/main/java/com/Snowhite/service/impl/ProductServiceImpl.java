@@ -8,6 +8,7 @@ import com.Snowhite.exception.ProductNotFoundException;
 import com.Snowhite.repository.ProductRepository;
 import com.Snowhite.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
@@ -27,8 +28,8 @@ public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
 
     @Override
-    public List<Product> findAll(Pageable pageable, String filter) {
-        List<Product> products = productRepository.findAll(pageable, "%" + filter + "%");
+    public Page<Product> findAll(Pageable pageable, String filter) {
+        Page<Product> products = productRepository.findAll(pageable, "%" + filter + "%");
 
         if (products.isEmpty()) {
             throw new NoDataFoundException();
@@ -38,7 +39,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product findById(int id) {
+    public Product findById(long id) {
 
         Product product = productRepository.findById(id);
 
@@ -57,7 +58,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product findByIdNotAndName(int id, String name) {
+    public Product findByIdNotAndName(long id, String name) {
         return productRepository.findByIdNotAndName(id, name);
     }
 
@@ -99,7 +100,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Modifying
     @Override
-    public Product editProduct(Product product, MultipartFile file) throws IOException {
+    public Product updateProduct(Product product, MultipartFile file) throws IOException {
 
         Product currentProduct = productRepository.findById(product.getId());
 
@@ -138,7 +139,7 @@ public class ProductServiceImpl implements ProductService {
             } else {
                 product.setImage(currentProduct.getImage());
             }
-
+//            return productRepository.save(product);
             return productRepository.updateProduct(product.getId(), product.getName(), file);
         }
     }

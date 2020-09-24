@@ -90,36 +90,40 @@ public class InventoryController {
     @ApiOperation(value = "Update Inventory post mapping",
                   notes = "This method update inventory",
                   response = ResponseEntity.class)
-    @PostMapping("/edit")
-    public ResponseEntity<Inventory> updateInventory(@RequestBody @Valid Inventory inventory) {
+    @PutMapping("/edit")
+    public ResponseEntity<Integer> updateInventory(@RequestBody @Valid Inventory inventory) {
 
         log.debug("Inventory edit post method is called");
 
-        Inventory updateInventory = inventoryService.updateInventory(inventory);
+        Integer updateInventory = inventoryService.updateInventory(inventory);
+
         log.info("This " + inventory.getId() + " - id inventory has been updated, Inventory - " + updateInventory);
 
         return new ResponseEntity<>(updateInventory, HttpStatus.OK);
-
     }
 
     @ApiOperation(value = "Sale Inventory",
                   notes = "This method converts the status of the inventory to sold",
                   response = ResponseEntity.class)
-    @PostMapping("/sale/{id}")
-    public ResponseEntity<Inventory> saleInventory(@PathVariable(name = "id") int id,
+    @PutMapping("/sale/{id}")
+    public ResponseEntity<Integer> saleInventory(@PathVariable(name = "id") int id,
                                                   @RequestParam(value = "salePrice") Double salePrice) {
 
         log.debug("Inventory sale post method is called");
 
+        System.out.println("salePrice - " + salePrice);
+
         Inventory inventory = inventoryService.findById(id);
 
-        inventory.setStatus(Status.SOLD);
+//        inventory.setStatus(Status.SOLD);
 
-        inventory.setSalePrice(salePrice);
+//        inventory.setSalePrice(salePrice);
 
-        Inventory saleInventory = inventoryService.updateInventory(inventory);
+//        Inventory saleInventory = inventoryService.updateInventory(inventory);
 
-        log.info("This " + inventory.getId() + " - id inventory was sold for " + salePrice + " " + saleInventory.getCurrency());
+        Integer saleInventory = inventoryService.saleInventory(inventory.getId(), salePrice);
+
+        log.info("This " + id + " - id inventory was sold for " + salePrice);
 
         return new ResponseEntity<>(saleInventory, HttpStatus.OK);
     }
@@ -127,18 +131,16 @@ public class InventoryController {
     @ApiOperation(value = "Destroy Inventory",
                   notes = "This method converts the status of the inventory to destroy",
                   response = ResponseEntity.class)
-    @PostMapping("/destroy/{id}")
-    public ResponseEntity<Inventory> destroyInventory(@PathVariable(name = "id") int id) {
+    @PutMapping("/destroy/{id}")
+    public ResponseEntity<Integer> destroyInventory(@PathVariable(name = "id") int id) {
 
         log.debug("Inventory destroy post method is called");
 
         Inventory inventory = inventoryService.findById(id);
 
-        inventory.setStatus(Status.DESTROYED);
+        Integer destroyInventory = inventoryService.updateStatus(String.valueOf(Status.DESTROYED), inventory.getId());
 
-        Inventory destroyInventory = inventoryService.updateInventory(inventory);
-
-        log.info("This " + destroyInventory.getId() + " - id inventory was destroyed");
+        log.info("This " + inventory.getId() + " - id inventory was destroyed");
 
 
         return new ResponseEntity<>(destroyInventory, HttpStatus.OK);
@@ -147,18 +149,16 @@ public class InventoryController {
     @ApiOperation(value = "Return Inventory",
                   notes = "This method converts the status of the inventory to return",
                   response = ResponseEntity.class)
-    @PostMapping("/return/{id}")
-    public ResponseEntity<Inventory> returnInventory(@PathVariable(name = "id") int id) {
+    @PutMapping("/return/{id}")
+    public ResponseEntity<Integer> returnInventory(@PathVariable(name = "id") int id) {
 
         log.debug("Inventory destroy post method is called");
 
         Inventory inventory = inventoryService.findById(id);
 
-        inventory.setStatus(Status.RETURN);
+        Integer returnInventory = inventoryService.updateStatus(String.valueOf(Status.RETURN), inventory.getId());
 
-        Inventory returnInventory = inventoryService.updateInventory(inventory);
-
-        log.info("This " + returnInventory.getId() + " - id inventory was returned");
+        log.info("This " + inventory.getId() + " - id inventory was returned");
 
         return new ResponseEntity<>(returnInventory, HttpStatus.OK);
     }

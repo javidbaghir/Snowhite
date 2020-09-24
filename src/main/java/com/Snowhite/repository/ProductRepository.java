@@ -15,15 +15,15 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     @Query(value = "select p from products p where CONCAT (p.name) like :filter")
-    List<Product> findAll(Pageable pageable, @Param("filter") String filter);
+    Page<Product> findAll(Pageable pageable, @Param("filter") String filter);
 
-    Product findById(int id);
+    Product findById(long id);
 
     Product findByName(String name);
 
-    Product findByIdNotAndName(int id, String name);
+    Product findByIdNotAndName(long id, String name);
 
     @Query(nativeQuery = true, value = "UPDATE products p SET p.name = :productName, p.image = :image WHERE p.id = :id")
-    Product updateProduct(@Param("id") Integer id, @Param("productName") String name, @Param("image") MultipartFile image);
+    Product updateProduct(@Param("id") long id, @Param("productName") String name, @Param("image") MultipartFile image);
 
 }

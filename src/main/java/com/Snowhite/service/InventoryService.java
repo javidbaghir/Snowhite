@@ -19,9 +19,13 @@ public interface InventoryService {
 
     Inventory addInventory(Inventory inventory);
 
-    Inventory updateInventory(Inventory inventory);
+    Integer updateInventory(Inventory inventory);
 
-    Inventory findById(int id);
+    Integer updateStatus(String status, long id);
+
+    Integer saleInventory(long id, Double salePrice);
+
+    Inventory findById(long id);
 
     List<Inventory> getInventoryByDate(Date startDate, Date endDate);
 

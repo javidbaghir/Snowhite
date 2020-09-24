@@ -12,16 +12,16 @@ import java.util.List;
 
 public interface ProductService {
 
-    List<Product> findAll(Pageable pageable, String filter);
+    Page<Product> findAll(Pageable pageable, String filter);
 
-    Product findById(int id);
+    Product findById(long id);
 
     Product findByName(String name);
 
-    Product findByIdNotAndName(int id, String name);
+    Product findByIdNotAndName(long id, String name);
 
     Product addProduct(Product product, MultipartFile file) throws IOException;
 
-    Product editProduct(Product product, MultipartFile file) throws IOException;
+    Product updateProduct(Product product, MultipartFile file) throws IOException;
 
 }

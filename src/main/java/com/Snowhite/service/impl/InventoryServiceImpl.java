@@ -2,11 +2,8 @@ package com.Snowhite.service.impl;
 
 import com.Snowhite.domain.Inventory;
 import com.Snowhite.domain.Status;
+import com.Snowhite.exception.*;
 import com.Snowhite.projection.BudgetProjection;
-import com.Snowhite.exception.InventoryNotFoundException;
-import com.Snowhite.exception.InventoryNumberAlreadyExistException;
-import com.Snowhite.exception.NoDataFoundException;
-import com.Snowhite.exception.NoGainsThisMonth;
 import com.Snowhite.projection.GainProjection;
 import com.Snowhite.projection.TotalWeight;
 import com.Snowhite.repository.InventoryRepository;
@@ -16,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,20 +79,40 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public Inventory updateInventory(Inventory inventory) {
-        return inventoryRepository.save(inventory);
+    public Integer updateInventory(Inventory inventory) {
+        return inventoryRepository.updateInventory(inventory.getId(), inventory.getInventoryNumber(), inventory.getKarat(), inventory.getWeight(),
+                String.valueOf(inventory.getWeightUnite()), inventory.getProb(), inventory.getCost(),
+                String.valueOf(inventory.getCurrency()), inventory.getProduct().getId(),
+                String.valueOf(inventory.getStatus()), inventory.getDateOfAddition());
     }
 
-    //    @Override
+
+//    @Override
 //    public Inventory updateInventory(Inventory inventory) {
 //
-//        return inventoryRepository.updateInventory(inventory.getInventoryNumber(), inventory.getKarat(), inventory.getWeight(), inventory.getWeightUnite(),
-//                inventory.getProb(), inventory.getCost(), inventory.getSalePrice(), inventory.getCurrency(), inventory.getProduct().getId(),
-//                inventory.getStatus(), inventory.getDateOfAddition());
+//        return inventoryRepository.save(inventory);
 //    }
 
+
     @Override
-    public Inventory findById(int id) {
+    public Integer saleInventory(long id, Double salePrice) {
+
+        if (salePrice == null) {
+            throw new NoSalePriceException();
+        } else {
+            return inventoryRepository.saleInventory(id, salePrice);
+        }
+    }
+
+    @Override
+    public Integer updateStatus(String status, long id) {
+
+
+            return inventoryRepository.updateStatus(status, id);
+    }
+
+    @Override
+    public Inventory findById(long id) {
 
         Inventory inventory = inventoryRepository.findById(id);
 
